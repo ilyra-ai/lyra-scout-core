@@ -118,9 +118,9 @@ export class ReportGenerator {
   }
 
   /**
-   * Gera relatório em formato HTML para conversão PDF
+   * Gera relatório em formato HTML para conversão posterior em PDF
    */
-  static generateHTMLReport(analysisResult: AnalysisResult): string {
+  static generateHTML(analysisData: any): string {
     const currentDate = new Date().toLocaleDateString('pt-BR');
     const currentTime = new Date().toLocaleTimeString('pt-BR');
     
@@ -130,7 +130,7 @@ export class ReportGenerator {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Compliance - ${analysisResult.entityInfo.name}</title>
+    <title>Relatório de Compliance - ${analysisData.document || 'N/A'}</title>
     <style>
         ${this.getReportCSS()}
     </style>
@@ -142,9 +142,9 @@ export class ReportGenerator {
             <div class="header-content">
                 <h1>Relatório de Compliance e Due Diligence</h1>
                 <div class="entity-info">
-                    <h2>${analysisResult.entityInfo.name}</h2>
-                    <p>${analysisResult.entityInfo.type.toUpperCase()}: ${this.maskDocument(analysisResult.entityInfo.document, analysisResult.entityInfo.type)}</p>
-                    <p>Status: ${analysisResult.entityInfo.status}</p>
+                    <h2>${analysisData.entityInfo?.name || 'Entidade'}</h2>
+                    <p>Documento: ${analysisData.document}</p>
+                    <p>Score Geral: ${analysisData.overallScore}/100</p>
                 </div>
             </div>
             <div class="report-meta">
@@ -159,23 +159,23 @@ export class ReportGenerator {
             <div class="summary-grid">
                 <div class="summary-card">
                     <h3>Score Geral</h3>
-                    <div class="score-circle ${this.getScoreClass(analysisResult.overallScore)}">
-                        ${analysisResult.overallScore}
+                    <div class="score-circle ${this.getScoreClass(analysisData.overallScore)}">
+                        ${analysisData.overallScore}
                     </div>
                 </div>
                 <div class="summary-card">
                     <h3>Nível de Risco</h3>
-                    <div class="risk-badge ${analysisResult.riskLevel}">
-                        ${this.getRiskLabel(analysisResult.riskLevel)}
+                    <div class="risk-badge ${analysisData.riskLevel || 'medium'}">
+                        ${this.getRiskLabel(analysisData.riskLevel || 'medium')}
                     </div>
                 </div>
                 <div class="summary-card">
-                    <h3>Total de Achados</h3>
-                    <div class="metric">${analysisResult.totalFindings}</div>
+                    <h3>Módulos Analisados</h3>
+                    <div class="metric">${analysisData.modules?.length || 0}</div>
                 </div>
                 <div class="summary-card">
-                    <h3>Questões Críticas</h3>
-                    <div class="metric critical">${analysisResult.criticalIssues}</div>
+                    <h3>Alertas Alto Risco</h3>
+                    <div class="metric critical">${analysisData.modules?.filter((m: any) => m.result?.risk === 'high').length || 0}</div>
                 </div>
             </div>
         </section>
@@ -183,46 +183,53 @@ export class ReportGenerator {
         <!-- Análise por Módulos -->
         <section class="modules-analysis">
             <h2>Análise Detalhada por Módulo</h2>
-            ${analysisResult.modules.map(module => `
+            ${analysisData.modules?.map((module: any) => `
                 <div class="module-card">
                     <div class="module-header">
                         <h3>${module.name}</h3>
                         <div class="module-score">
-                            <span class="score">${module.score}/100</span>
-                            <span class="risk-badge ${module.risk}">${this.getRiskLabel(module.risk)}</span>
+                            <span class="score">${module.result?.score || 0}/100</span>
+                            <span class="risk-badge ${module.result?.risk || 'low'}">${this.getRiskLabel(module.result?.risk || 'low')}</span>
                         </div>
                     </div>
                     <div class="module-content">
                         <div class="findings">
                             <h4>Principais Achados:</h4>
                             <ul>
-                                ${module.findings.map(finding => `<li>${finding}</li>`).join('')}
+                                ${module.result?.findings?.map((finding: string) => `<li>${finding}</li>`).join('') || '<li>Nenhum achado identificado.</li>'}
                             </ul>
                         </div>
                         <div class="sources">
-                            <h4>Fontes Consultadas:</h4>
-                            <ul>
-                                ${module.sources.map(source => `<li>${source}</li>`).join('')}
-                            </ul>
+                            <h4>Status:</h4>
+                            <p>${module.status === 'completed' ? 'Análise Concluída' : 'Em Processamento'}</p>
                         </div>
                     </div>
                 </div>
-            `).join('')}
+            `).join('') || '<p>Nenhum módulo analisado.</p>'}
         </section>
 
         <!-- Recomendações -->
         <section class="recommendations">
             <h2>Recomendações e Plano de Ação</h2>
-            ${this.generateRecommendations(analysisResult).map(rec => `
-                <div class="recommendation-card ${rec.priority}">
-                    <h3>${rec.title}</h3>
-                    <p>${rec.description}</p>
-                    <div class="recommendation-meta">
-                        <span class="priority">Prioridade: ${rec.priority}</span>
-                        <span class="timeline">Prazo: ${rec.timeline}</span>
-                    </div>
+            <div class="recommendation-card medium">
+                <h3>Monitoramento Contínuo</h3>
+                <p>Implemente rotinas de verificação periódica dos módulos analisados para manter o compliance atualizado.</p>
+                <div class="recommendation-meta">
+                    <span class="priority">Prioridade: Média</span>
+                    <span class="timeline">Prazo: Contínuo</span>
                 </div>
-            `).join('')}
+            </div>
+            
+            ${analysisData.modules?.filter((m: any) => m.result?.risk === 'high').length > 0 ? `
+            <div class="recommendation-card high">
+                <h3>Ação Imediata Requerida</h3>
+                <p>Módulos de alto risco identificados requerem atenção imediata. Revise os achados e implemente ações corretivas.</p>
+                <div class="recommendation-meta">
+                    <span class="priority">Prioridade: Alta</span>
+                    <span class="timeline">Prazo: 7 dias</span>
+                </div>
+            </div>
+            ` : ''}
         </section>
 
         <!-- Rodapé -->
@@ -589,10 +596,64 @@ export class ReportGenerator {
   }
 
   /**
-   * Simula download de PDF
+   * Baixa relatório como PDF usando jsPDF
    */
-  static downloadPDF(analysisResult: AnalysisResult): void {
-    const htmlContent = this.generateHTMLReport(analysisResult);
+  static async downloadPDF(analysisData: any, filename: string = 'relatorio-compliance.pdf') {
+    try {
+      // Dynamic import to avoid bundle issues
+      const jsPDF = await import('jspdf').then(m => m.default);
+      const html2canvas = await import('html2canvas').then(m => m.default);
+      
+      // Create a temporary div with the HTML content
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = this.generateHTML(analysisData);
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '210mm'; // A4 width
+      document.body.appendChild(tempDiv);
+      
+      // Convert to canvas
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        height: tempDiv.scrollHeight,
+        width: tempDiv.scrollWidth
+      });
+      
+      // Clean up
+      document.body.removeChild(tempDiv);
+      
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(filename);
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to HTML download
+      const html = this.generateHTML(analysisData);
+      const blob = new Blob([html], { type: 'text/html' });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename.replace('.pdf', '.html');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  /**
+   * Download de relatório simples (compatibilidade)
+   */
+  static downloadPDFLegacy(analysisResult: AnalysisResult): void {
+    const htmlContent = this.generateHTML(analysisResult);
     
     // Em produção, usaria uma biblioteca como puppeteer ou jsPDF
     // Para demo, criamos um blob com o HTML
