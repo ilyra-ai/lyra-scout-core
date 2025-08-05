@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { DocumentValidator } from "@/utils/documentValidator";
 
 interface DocumentInputProps {
   onAnalyze: (document: string, type: 'cpf' | 'cnpj') => void;
@@ -16,60 +17,44 @@ export const DocumentInput = ({ onAnalyze, isLoading }: DocumentInputProps) => {
   const [documentType, setDocumentType] = useState<'cpf' | 'cnpj' | null>(null);
   const { toast } = useToast();
 
-  const validateAndDetectType = (value: string) => {
-    const cleanValue = value.replace(/\D/g, '');
-    
-    if (cleanValue.length === 11) {
-      return 'cpf';
-    } else if (cleanValue.length === 14) {
-      return 'cnpj';
-    }
-    return null;
-  };
-
-  const formatDocument = (value: string, type: 'cpf' | 'cnpj') => {
-    const cleanValue = value.replace(/\D/g, '');
-    
-    if (type === 'cpf') {
-      return cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    } else {
-      return cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-    }
-  };
-
   const handleInputChange = (value: string) => {
-    const type = validateAndDetectType(value);
-    setDocumentType(type);
+    const validation = DocumentValidator.validate(value);
     
-    if (type) {
-      setDocument(formatDocument(value, type));
+    if (validation.type) {
+      setDocumentType(validation.type);
+      setDocument(validation.formatted);
     } else {
+      setDocumentType(null);
       setDocument(value);
     }
   };
 
   const handleAnalyze = () => {
-    if (!documentType || !document) {
+    const validation = DocumentValidator.validate(document);
+    
+    if (!validation.isValid) {
       toast({
         title: "Documento inválido",
-        description: "Por favor, insira um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.",
+        description: validation.errors.join('. '),
         variant: "destructive",
       });
       return;
     }
 
-    onAnalyze(document, documentType);
+    onAnalyze(validation.formatted, validation.type!);
   };
 
   const handleExampleCNPJ = () => {
-    const petrobras = "33.000.167/0001-01"; // Petrobras
-    setDocument(petrobras);
+    const examples = DocumentValidator.getExamples();
+    const formatted = DocumentValidator.formatCNPJ(examples.cnpj);
+    setDocument(formatted);
     setDocumentType('cnpj');
   };
 
   const handleExampleCPF = () => {
-    const example = "123.456.789-00"; // Exemplo
-    setDocument(example);
+    const examples = DocumentValidator.getExamples();
+    const formatted = DocumentValidator.formatCPF(examples.cpf);
+    setDocument(formatted);
     setDocumentType('cpf');
   };
 

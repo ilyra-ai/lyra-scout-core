@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import { ReportGenerator } from "@/utils/reportGenerator";
 
 interface ComplianceReportProps {
   document: string;
@@ -42,43 +43,44 @@ export const ComplianceReport = ({ document, documentType, analysisData }: Compl
       description: "Seu relatório completo será baixado em instantes.",
     });
     
-    // Simular download
-    setTimeout(() => {
-      const element = window.document.createElement('a');
-      element.href = '#';
-      element.download = `compliance-report-${document.replace(/\D/g, '')}-${new Date().toISOString().split('T')[0]}.pdf`;
-      element.click();
-    }, 1000);
+    try {
+      ReportGenerator.downloadPDF(analysisData);
+      
+      setTimeout(() => {
+        toast({
+          title: "Download Concluído",
+          description: "Relatório PDF gerado com sucesso.",
+        });
+      }, 1000);
+    } catch (error) {
+      toast({
+        title: "Erro ao gerar PDF",
+        description: "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownloadJSON = () => {
-    const reportData = {
-      document,
-      documentType,
-      analysisDate: new Date().toISOString(),
-      overallScore,
-      riskLevel,
-      totalFindings,
-      criticalIssues,
-      modules: analysisData?.modules || [],
-      metadata: {
-        generatedBy: "Lyra Compliance AI",
-        version: "1.0.0"
-      }
-    };
+    try {
+      ReportGenerator.downloadJSON(analysisData, {
+        includeRawData: true,
+        includeSources: true,
+        includeTimestamps: true,
+        lgpdCompliant: true
+      });
 
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const element = window.document.createElement('a');
-    element.setAttribute('href', dataUri);
-    element.setAttribute('download', `compliance-data-${document.replace(/\D/g, '')}-${new Date().toISOString().split('T')[0]}.json`);
-    element.click();
-
-    toast({
-      title: "Download Concluído",
-      description: "Dados da análise exportados em formato JSON.",
-    });
+      toast({
+        title: "Download Concluído",
+        description: "Dados da análise exportados em formato JSON.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao gerar JSON",
+        description: "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getRiskColor = (risk: string) => {
