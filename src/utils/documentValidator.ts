@@ -65,7 +65,7 @@ export class DocumentValidator {
         sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
       }
       let remainder = 11 - (sum % 11);
-      let firstDigit = remainder >= 10 ? 0 : remainder;
+      const firstDigit = remainder >= 10 ? 0 : remainder;
 
       if (firstDigit !== parseInt(cleanCPF.charAt(9))) {
         errors.push('Primeiro dígito verificador inválido');
@@ -77,7 +77,7 @@ export class DocumentValidator {
         sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
       }
       remainder = 11 - (sum % 11);
-      let secondDigit = remainder >= 10 ? 0 : remainder;
+      const secondDigit = remainder >= 10 ? 0 : remainder;
 
       if (secondDigit !== parseInt(cleanCPF.charAt(10))) {
         errors.push('Segundo dígito verificador inválido');
@@ -126,7 +126,7 @@ export class DocumentValidator {
         sum += parseInt(cleanCNPJ.charAt(i)) * weights1[i];
       }
       let remainder = sum % 11;
-      let firstDigit = remainder < 2 ? 0 : 11 - remainder;
+      const firstDigit = remainder < 2 ? 0 : 11 - remainder;
 
       if (firstDigit !== parseInt(cleanCNPJ.charAt(12))) {
         errors.push('Primeiro dígito verificador inválido');
@@ -139,7 +139,7 @@ export class DocumentValidator {
         sum += parseInt(cleanCNPJ.charAt(i)) * weights2[i];
       }
       remainder = sum % 11;
-      let secondDigit = remainder < 2 ? 0 : 11 - remainder;
+      const secondDigit = remainder < 2 ? 0 : 11 - remainder;
 
       if (secondDigit !== parseInt(cleanCNPJ.charAt(13))) {
         errors.push('Segundo dígito verificador inválido');
