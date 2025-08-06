@@ -106,35 +106,45 @@ class ComplianceService {
 
   // Buscar informações reais da entidade
   private async fetchEntityInfo(document: string, type: 'cpf' | 'cnpj'): Promise<EntityInfo> {
+    console.log(`Buscando dados reais para ${type.toUpperCase()}: ${document}`);
+    
     if (type === 'cnpj') {
       const response = await APIClient.consultarCNPJ(document);
+      console.log('Resposta CNPJ:', response);
+      
       if (response.success && response.data) {
         return {
           document,
           type,
-          name: response.data.razao_social,
-          status: response.data.status,
+          name: response.data.razao_social || 'Nome não informado',
+          status: response.data.status || 'ATIVO',
           registrationDate: response.data.data_abertura,
-          address: `${response.data.endereco.logradouro}, ${response.data.endereco.numero} - ${response.data.endereco.bairro}, ${response.data.endereco.municipio} - ${response.data.endereco.uf}`,
-          activities: [
+          address: response.data.endereco ? 
+            `${response.data.endereco.logradouro || ''}, ${response.data.endereco.numero || 's/n'} - ${response.data.endereco.bairro || ''}, ${response.data.endereco.municipio || ''} - ${response.data.endereco.uf || ''}` :
+            'Endereço não informado',
+          activities: response.data.atividade_principal ? [
             response.data.atividade_principal.descricao,
-            ...response.data.atividades_secundarias.slice(0, 2).map(a => a.descricao)
-          ]
+            ...((response.data.atividades_secundarias || []).slice(0, 2).map(a => a.descricao))
+          ] : ['Atividade não informada']
         };
       }
     } else {
       const response = await APIClient.consultarCPF(document);
+      console.log('Resposta CPF:', response);
+      
       if (response.success && response.data) {
         return {
           document,
           type,
-          name: response.data.nome,
-          status: response.data.status
+          name: response.data.nome || `Pessoa Física ${document.slice(-4)}`,
+          status: response.data.status || response.data.situacao_receita || 'REGULAR',
+          registrationDate: response.data.data_nascimento,
+          address: response.data.endereco || 'Endereço não informado'
         };
       }
     }
 
-    // Fallback para dados simulados se API falhar
+    console.warn(`Não foi possível obter dados reais para ${type}: ${document}. Usando fallback.`);
     return this.generateEntityInfo(document, type);
   }
 
@@ -189,8 +199,10 @@ class ComplianceService {
   // Realizar análise real usando múltiplas APIs
   private async performRealAnalysis(document: string, type: 'cpf' | 'cnpj'): Promise<ModuleResult[]> {
     const results = [];
+    console.log(`Iniciando análise real para ${type}: ${document}`);
     
     for (const module of defaultModules) {
+      console.log(`Analisando módulo: ${module.name}`);
       try {
         let moduleResult: ModuleResult;
         

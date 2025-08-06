@@ -180,6 +180,43 @@ export class ReportGenerator {
             </div>
         </section>
 
+        <!-- Informações da Entidade -->
+        <section class="entity-details">
+            <h2>Informações da Entidade</h2>
+            <div class="entity-grid">
+                <div class="entity-item">
+                    <strong>Nome/Razão Social:</strong>
+                    <span>${analysisData.entityInfo?.name || 'Não informado'}</span>
+                </div>
+                <div class="entity-item">
+                    <strong>Documento:</strong>
+                    <span>${analysisData.document}</span>
+                </div>
+                <div class="entity-item">
+                    <strong>Status:</strong>
+                    <span>${analysisData.entityInfo?.status || 'Não informado'}</span>
+                </div>
+                ${analysisData.entityInfo?.registrationDate ? `
+                <div class="entity-item">
+                    <strong>Data de Abertura/Nascimento:</strong>
+                    <span>${new Date(analysisData.entityInfo.registrationDate).toLocaleDateString('pt-BR')}</span>
+                </div>
+                ` : ''}
+                ${analysisData.entityInfo?.address ? `
+                <div class="entity-item">
+                    <strong>Endereço:</strong>
+                    <span>${analysisData.entityInfo.address}</span>
+                </div>
+                ` : ''}
+                ${analysisData.entityInfo?.activities?.length > 0 ? `
+                <div class="entity-item">
+                    <strong>Atividades:</strong>
+                    <span>${analysisData.entityInfo.activities.join(', ')}</span>
+                </div>
+                ` : ''}
+            </div>
+        </section>
+
         <!-- Análise por Módulos -->
         <section class="modules-analysis">
             <h2>Análise Detalhada por Módulo</h2>
@@ -188,20 +225,39 @@ export class ReportGenerator {
                     <div class="module-header">
                         <h3>${module.name}</h3>
                         <div class="module-score">
-                            <span class="score">${module.result?.score || 0}/100</span>
-                            <span class="risk-badge ${module.result?.risk || 'low'}">${this.getRiskLabel(module.result?.risk || 'low')}</span>
+                            <span class="score">${module.score || module.result?.score || 0}/100</span>
+                            <span class="risk-badge ${module.risk || module.result?.risk || 'low'}">${this.getRiskLabel(module.risk || module.result?.risk || 'low')}</span>
                         </div>
                     </div>
                     <div class="module-content">
                         <div class="findings">
                             <h4>Principais Achados:</h4>
                             <ul>
-                                ${module.result?.findings?.map((finding: string) => `<li>${finding}</li>`).join('') || '<li>Nenhum achado identificado.</li>'}
+                                ${(module.findings || module.result?.findings || []).map((finding: string) => `<li>${finding}</li>`).join('') || '<li>Nenhum achado identificado.</li>'}
                             </ul>
                         </div>
+                        ${(module.sources || module.result?.sources)?.length > 0 ? `
                         <div class="sources">
-                            <h4>Status:</h4>
-                            <p>${module.status === 'completed' ? 'Análise Concluída' : 'Em Processamento'}</p>
+                            <h4>Fontes Consultadas:</h4>
+                            <div class="sources-list">
+                                ${(module.sources || module.result?.sources).map((source: string) => `<span class="source-tag">${source}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        <div class="methodology">
+                            <h4>Metodologia de Análise:</h4>
+                            <p>
+                                ${module.id === 'cadastral' ? 'Verificação de dados cadastrais através de consultas à Receita Federal e bases oficiais. Análise da situação ativa/inativa da entidade.' : ''}
+                                ${module.id === 'sancoes' ? 'Consulta a listas de sanções nacionais (CADIN, CEIS/CNEP) e internacionais (ONU, EU). Verificação de restrições e penalidades.' : ''}
+                                ${module.id === 'processos' ? 'Busca em tribunais estaduais e federais através de APIs especializadas. Análise do histórico processual.' : ''}
+                                ${module.id === 'fiscal' ? 'Verificação da situação fiscal federal, estadual e municipal. Consulta de débitos e regularidade.' : ''}
+                                ${module.id === 'midia' ? 'Análise de menções na mídia com classificação de sentimento. Monitoramento de reputação.' : ''}
+                                ${!['cadastral', 'sancoes', 'processos', 'fiscal', 'midia'].includes(module.id) ? 'Análise baseada em múltiplas fontes de dados públicos e privados com algoritmos de classificação de risco.' : ''}
+                            </p>
+                        </div>
+                        <div class="analysis-status">
+                            <h4>Status da Análise:</h4>
+                            <p>${module.status === 'completed' ? '✅ Análise Concluída com Sucesso' : '⏳ Em Processamento'}</p>
                         </div>
                     </div>
                 </div>
