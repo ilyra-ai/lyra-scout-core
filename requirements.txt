@@ -4,3 +4,7 @@ httpx
 beautifulsoup4
 fpdf
 pytest
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
