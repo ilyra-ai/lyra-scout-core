@@ -6,7 +6,7 @@ const Landing = () => {
   return (
     <>
       <SEO title="Plataforma de Compliance – Análise Rápida" description="Landing page minimalista e envolvente para sua plataforma de compliance." canonical={window.location.origin + '/'} />
-      <header className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-background">
         <nav className="container mx-auto flex items-center justify-between py-4">
           <Link to="/" className="font-imprima text-xl">CompliancePro</Link>
           <div className="flex gap-3">
