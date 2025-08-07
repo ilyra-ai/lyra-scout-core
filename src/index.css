@@ -16,10 +16,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary - Deep professional blue */
-    --primary: 212 100% 25%;
+    /* Primary - Black in light mode */
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 212 100% 35%;
+    --primary-glow: 0 0% 20%;
 
     /* Secondary - Sophisticated navy */
     --secondary: 223 39% 15%;
@@ -130,6 +130,6 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-imprima;
   }
 }
