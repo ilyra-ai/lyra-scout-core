@@ -1,6 +1,6 @@
 export type Role = 'admin' | 'user';
 
-const BASE_URL = 'http://localhost:8000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export async function login(username: string, password: string): Promise<{ token: string; role: Role }>{
   const form = new URLSearchParams();
