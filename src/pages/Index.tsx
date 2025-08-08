@@ -3,7 +3,7 @@ import { ComplianceHeader } from "@/components/ComplianceHeader";
 import { DocumentInput } from "@/components/DocumentInput";
 import { ComplianceModules, defaultModules } from "@/components/ComplianceModules";
 import { ComplianceReport } from "@/components/ComplianceReport";
-import { complianceService } from "@/services/complianceService";
+import { realComplianceService } from "@/services/realComplianceService";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ModuleStatus {
@@ -46,8 +46,8 @@ const Index = () => {
     setModules(initialModules);
 
     try {
-      // Simulate real-time progress
-      const progressGenerator = complianceService.analyzeDocumentWithProgress(document, type);
+      // Real-time progress analysis
+      const progressGenerator = realComplianceService.analyzeDocumentWithProgress(document, type);
       
       for await (const update of progressGenerator) {
         if (update.isComplete && update.result) {
@@ -58,20 +58,23 @@ const Index = () => {
             description: "Relatório de compliance gerado com sucesso.",
           });
         } else {
-          // Convert modules to expected format
-          const updatedModules = update.modules.map(m => ({
-            id: m.id,
-            name: m.name,
-            icon: m.icon,
-            status: m.status,
-            progress: m.progress,
-            result: m.result ? {
-              score: m.result.score,
-              risk: m.result.risk,
-              findings: m.result.findings.length,
-              details: m.result.findings
-            } : undefined
-          }));
+          // Convert modules to expected format with icons from defaultModules
+          const updatedModules = update.modules.map(m => {
+            const defaultModule = defaultModules.find(dm => dm.id === m.id);
+            return {
+              id: m.id,
+              name: m.name,
+              icon: defaultModule?.icon,
+              status: m.status,
+              progress: m.progress,
+              result: m.result ? {
+                score: m.result.score,
+                risk: m.result.risk,
+                findings: m.result.findings.length,
+                details: m.result.findings
+              } : undefined
+            };
+          });
           setModules(updatedModules);
         }
       }
