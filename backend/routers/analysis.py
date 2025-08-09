@@ -43,8 +43,7 @@ async def analyze_document(
 async def perform_cnpj_analysis(cnpj_data: dict, cnpj: str) -> Dict[str, Any]:
     """Perform real CNPJ compliance analysis"""
     
-    # Simulate progressive analysis
-    await asyncio.sleep(0.5)
+    # Real-time progressive analysis
     
     modules_results = []
     
@@ -65,55 +64,53 @@ async def perform_cnpj_analysis(cnpj_data: dict, cnpj: str) -> Dict[str, Any]:
         "sources": ["Receita Federal", "MinhaReceita.org"]
     })
     
-    # Sanctions Analysis
-    sanctions_score = random.randint(80, 95)
+    # Sanctions Analysis - Using real API
+    from backend.services.real_analysis import real_analysis_service
+    sanctions_result = await real_analysis_service.analyze_cnpj_sanctions(cnpj)
     modules_results.append({
         "id": "sanctions",
         "name": "Análise de Sanções",
-        "score": sanctions_score,
-        "risk": "low",
+        "score": sanctions_result["score"],
+        "risk": sanctions_result["risk"],
         "status": "completed", 
-        "findings": ["Nenhuma sanção encontrada", "Consulta realizada em bases oficiais"],
-        "sources": ["CEIS", "CNEP", "TCU"]
+        "findings": sanctions_result["findings"],
+        "sources": sanctions_result["sources"]
     })
     
-    # Legal Processes
-    legal_score = random.randint(75, 90)
+    # Legal Processes - Using real API
+    legal_result = await real_analysis_service.analyze_cnpj_legal(cnpj)
     modules_results.append({
         "id": "legal",
         "name": "Processos Judiciais",
-        "score": legal_score,
-        "risk": "low",
+        "score": legal_result["score"],
+        "risk": legal_result["risk"],
         "status": "completed",
-        "findings": ["Sem processos relevantes identificados"],
-        "sources": ["TJ", "STJ", "TST"]
+        "findings": legal_result["findings"],
+        "sources": legal_result["sources"]
     })
     
-    # Fiscal Analysis
-    fiscal_score = random.randint(70, 85)
+    # Fiscal Analysis - Using real API
+    fiscal_result = await real_analysis_service.analyze_fiscal_situation(cnpj)
     modules_results.append({
         "id": "fiscal",
         "name": "Situação Fiscal",
-        "score": fiscal_score,
-        "risk": "medium" if fiscal_score < 80 else "low",
+        "score": fiscal_result["score"],
+        "risk": fiscal_result["risk"],
         "status": "completed",
-        "findings": [
-            "Regularidade fiscal verificada",
-            "Certidões em dia"
-        ],
-        "sources": ["RFB", "PGFN"]
+        "findings": fiscal_result["findings"],
+        "sources": fiscal_result["sources"]
     })
     
-    # Media Analysis
-    media_score = random.randint(80, 95)
+    # Media Analysis - Using real API
+    media_result = await real_analysis_service.analyze_media_mentions(cnpj_data.get('nome', cnpj))
     modules_results.append({
         "id": "media",
         "name": "Análise de Mídia",
-        "score": media_score,
-        "risk": "low",
+        "score": media_result["score"],
+        "risk": media_result["risk"],
         "status": "completed",
-        "findings": ["Nenhuma menção negativa relevante"],
-        "sources": ["Google News", "Portais de notícias"]
+        "findings": media_result["findings"],
+        "sources": media_result["sources"]
     })
     
     # Calculate overall score
@@ -136,7 +133,7 @@ async def perform_cnpj_analysis(cnpj_data: dict, cnpj: str) -> Dict[str, Any]:
 async def perform_cpf_analysis(cpf: str) -> Dict[str, Any]:
     """Perform real CPF compliance analysis"""
     
-    await asyncio.sleep(0.5)
+    # Real-time analysis
     
     modules_results = []
     
