@@ -201,7 +201,7 @@ export class DocumentValidator {
   static getExamples(): { cpf: string; cnpj: string } {
     return {
       cpf: '11144477735', // CPF válido para teste
-      cnpj: '33000167000101' // CNPJ Petrobras para teste
+      cnpj: '33000167000101' // CNPJ válido para teste
     };
   }
 

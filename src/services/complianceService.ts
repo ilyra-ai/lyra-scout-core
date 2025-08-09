@@ -150,48 +150,22 @@ class ComplianceService {
 
   private generateEntityInfo(document: string, type: 'cpf' | 'cnpj'): EntityInfo {
     if (type === 'cnpj') {
-      // Dados simulados baseados em empresas reais
-      const companies = [
-        {
-          name: "PETRÓLEO BRASILEIRO S.A. - PETROBRAS",
-          status: "ATIVA",
-          registrationDate: "1953-10-03",
-          address: "Av. República do Chile, 65 - Centro, Rio de Janeiro - RJ",
-          activities: ["Extração de petróleo e gás natural", "Refino de petróleo", "Distribuição de combustíveis"]
-        },
-        {
-          name: "BANCO DO BRASIL S.A.",
-          status: "ATIVA", 
-          registrationDate: "1808-10-12",
-          address: "SBS Quadra 1, Bloco C, Lote 32 - Asa Sul, Brasília - DF",
-          activities: ["Banco múltiplo", "Serviços financeiros", "Seguros"]
-        },
-        {
-          name: "MAGAZINE LUIZA S.A.",
-          status: "ATIVA",
-          registrationDate: "1957-11-16", 
-          address: "Rua Voluntários da Franca, 1465 - Franca - SP",
-          activities: ["Comércio varejista", "E-commerce", "Serviços financeiros"]
-        }
-      ];
-
-      const company = companies[Math.floor(Math.random() * companies.length)];
-      
+      // Informações básicas do CNPJ - dados serão obtidos via API real
       return {
         document,
         type,
-        name: company.name,
-        status: company.status,
-        registrationDate: company.registrationDate,
-        address: company.address,
-        activities: company.activities
+        name: "Empresa Consultada",
+        status: "VERIFICANDO",
+        registrationDate: "A consultar",
+        address: "Endereço será obtido via consulta oficial",
+        activities: ["Atividades serão consultadas nos órgãos competentes"]
       };
     } else {
       return {
         document,
         type,
-        name: "João da Silva Santos",
-        status: "REGULAR"
+        name: "Pessoa Física",
+        status: "VERIFICANDO"
       };
     }
   }

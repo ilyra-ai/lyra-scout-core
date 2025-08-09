@@ -24,3 +24,11 @@ async def startup_event():
 # Rotas
 app.include_router(analysis_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
+
+@app.get("/")
+def read_root():
+    return {"message": "Compliance API ativa", "status": "OK"}
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy", "admin_available": True}
