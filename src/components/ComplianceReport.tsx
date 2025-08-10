@@ -313,12 +313,20 @@ export const ComplianceReport = ({ document, documentType, analysisData }: Compl
             <div className="space-y-6">
               {analysisData?.modules?.map((module: any, idx: number) => (
                 <div key={idx} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-lg">{module.name}</h3>
                     <Badge className={getRiskColor(module.risk)}>
                       Score: {module.score}/100
                     </Badge>
                   </div>
+                  
+                  {/* Metodologia */}
+                  {module.methodology && (
+                    <div className="mb-4 p-3 bg-accent/50 rounded-lg">
+                      <h4 className="font-medium mb-2 text-accent-foreground">Metodologia:</h4>
+                      <p className="text-sm text-muted-foreground">{module.methodology}</p>
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -343,6 +351,20 @@ export const ComplianceReport = ({ document, documentType, analysisData }: Compl
                       </ul>
                     </div>
                   </div>
+                  
+                  {/* Fatores de Risco */}
+                  {module.risk_factors && (
+                    <div className="mt-4 p-3 border-l-4 border-l-warning">
+                      <h4 className="font-medium mb-2">Fatores de Risco Identificados:</h4>
+                      <ul className="text-sm space-y-1">
+                        {module.risk_factors?.map((factor: string, factorIdx: number) => (
+                          <li key={factorIdx} className="text-warning-foreground">
+                            • {factor}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )) || (
                 <div className="text-center text-muted-foreground">

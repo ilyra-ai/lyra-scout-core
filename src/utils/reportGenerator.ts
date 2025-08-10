@@ -230,12 +230,6 @@ export class ReportGenerator {
                         </div>
                     </div>
                     <div class="module-content">
-                        <div class="findings">
-                            <h4>Principais Achados:</h4>
-                            <ul>
-                                ${(module.findings || module.result?.findings || []).map((finding: string) => `<li>${finding}</li>`).join('') || '<li>Nenhum achado identificado.</li>'}
-                            </ul>
-                        </div>
                         ${(module.sources || module.result?.sources)?.length > 0 ? `
                         <div class="sources">
                             <h4>Fontes Consultadas:</h4>
@@ -244,17 +238,37 @@ export class ReportGenerator {
                             </div>
                         </div>
                         ` : ''}
+                        
                         <div class="methodology">
                             <h4>Metodologia de Análise:</h4>
-                            <p>
-                                ${module.id === 'cadastral' ? 'Verificação de dados cadastrais através de consultas à Receita Federal e bases oficiais. Análise da situação ativa/inativa da entidade.' : ''}
-                                ${module.id === 'sancoes' ? 'Consulta a listas de sanções nacionais (CADIN, CEIS/CNEP) e internacionais (ONU, EU). Verificação de restrições e penalidades.' : ''}
-                                ${module.id === 'processos' ? 'Busca em tribunais estaduais e federais através de APIs especializadas. Análise do histórico processual.' : ''}
-                                ${module.id === 'fiscal' ? 'Verificação da situação fiscal federal, estadual e municipal. Consulta de débitos e regularidade.' : ''}
-                                ${module.id === 'midia' ? 'Análise de menções na mídia com classificação de sentimento. Monitoramento de reputação.' : ''}
-                                ${!['cadastral', 'sancoes', 'processos', 'fiscal', 'midia'].includes(module.id) ? 'Análise baseada em múltiplas fontes de dados públicos e privados com algoritmos de classificação de risco.' : ''}
-                            </p>
+                            <p>${module.methodology || 'Análise baseada em múltiplas fontes de dados públicos e algoritmos de classificação de risco.'}</p>
                         </div>
+                        
+                        <div class="findings-grid">
+                            <div class="findings">
+                                <h4>Principais Achados:</h4>
+                                <ul>
+                                    ${(module.findings || module.result?.findings || []).map((finding: string) => `<li>${finding}</li>`).join('') || '<li>Nenhum achado identificado.</li>'}
+                                </ul>
+                            </div>
+                            
+                            <div class="sources">
+                                <h4>Fontes Consultadas:</h4>
+                                <ul>
+                                    ${(module.sources || module.result?.sources || []).map((source: string) => `<li>${source}</li>`).join('') || '<li>Fontes não informadas.</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        ${(module.risk_factors && module.risk_factors.length > 0) ? `
+                        <div class="risk-factors">
+                            <h4>Fatores de Risco Identificados:</h4>
+                            <ul class="risk-factors-list">
+                                ${module.risk_factors.map((factor: string) => `<li class="risk-factor">${factor}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
                         <div class="analysis-status">
                             <h4>Status da Análise:</h4>
                             <p>${module.status === 'completed' ? '✅ Análise Concluída com Sucesso' : '⏳ Em Processamento'}</p>
@@ -439,9 +453,49 @@ export class ReportGenerator {
 
         .module-content {
             padding: 1.5rem;
+        }
+
+        .methodology {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-left: 4px solid #007bff;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .methodology h4 {
+            color: #007bff;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-factors {
+            background: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .risk-factors h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-factors-list {
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        .risk-factor {
+            color: #856404;
+            margin: 0.2rem 0;
+        }
+
+        .findings-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
+            margin: 1rem 0;
         }
 
         .findings ul, .sources ul {
