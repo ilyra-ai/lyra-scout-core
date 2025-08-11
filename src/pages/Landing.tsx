@@ -10,7 +10,7 @@ const Landing = () => {
         <nav className="container mx-auto flex items-center justify-between py-4">
           <Link to="/" className="font-imprima text-xl">CompliancePro</Link>
           <div className="flex gap-3">
-            <Link to="/login"><Button variant="outline">Entrar</Button></Link>
+            <Link to="/app"><Button variant="outline">Entrar</Button></Link>
             <Link to="/app"><Button>Ir para o App</Button></Link>
           </div>
         </nav>
@@ -24,7 +24,7 @@ const Landing = () => {
             Eleve seu processo de due diligence com análises claras e acionáveis. Simples, rápido e com foco no que importa para o seu negócio.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link to="/login"><Button size="lg">Começar agora</Button></Link>
+            <Link to="/app"><Button size="lg">Começar agora</Button></Link>
             <Link to="/app"><Button size="lg" variant="outline">Fazer uma análise</Button></Link>
           </div>
           <p className="text-sm text-muted-foreground">
