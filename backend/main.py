@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers.analysis import router as analysis_router
+from backend.routers.analysis import router as analysis_router, validate_document
 from backend.routers.auth import router as auth_router
 from backend.db import init_db, ensure_admin
 
@@ -23,6 +23,7 @@ async def startup_event():
 
 # Rotas
 app.include_router(analysis_router, prefix="/api")
+app.get("/analysis/{document}")(validate_document)
 app.include_router(auth_router, prefix="/api")
 
 @app.get("/")
