@@ -40,6 +40,13 @@ async def analyze_document(
         "timestamp": "2024-08-08T12:00:00Z"
     }
 
+@router.get("/analysis/{document}")
+async def validate_document(document: str):
+    validation = validate.validate_document(document.strip())
+    if not validation["valid"]:
+        raise HTTPException(status_code=400, detail=f"Invalid {validation['type']}")
+    return {"document": validation["document"], "type": validation["type"]}
+
 async def perform_cnpj_analysis(cnpj_data: dict, cnpj: str) -> Dict[str, Any]:
     """Perform comprehensive CNPJ compliance analysis with 15 detailed modules"""
     

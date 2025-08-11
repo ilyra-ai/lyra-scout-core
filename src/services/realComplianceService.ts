@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export interface RealAnalysisResult {
   document: string;
@@ -67,7 +67,7 @@ export class RealComplianceService {
     ];
 
     // Initialize modules
-    let moduleStates = modules.map(m => ({
+    const moduleStates = modules.map(m => ({
       ...m,
       status: 'pending' as 'pending' | 'processing' | 'completed' | 'error',
       progress: 0,
@@ -89,12 +89,8 @@ export class RealComplianceService {
     }
 
     // Get final analysis result
-    try {
-      const result = await this.analyzeDocument(document, type);
-      yield { modules: moduleStates, isComplete: true, result };
-    } catch (error) {
-      throw error;
-    }
+    const result = await this.analyzeDocument(document, type);
+    yield { modules: moduleStates, isComplete: true, result };
   }
 }
 
